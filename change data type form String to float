@@ -5,7 +5,7 @@ spark = SparkSession.builder.master("local").enableHiveSupport().appName("sparkT
 
 # reading the data
 
-data  = spark.read.option("header", "true").option("inferSchma","true").csv("C:/Users/pravjha/Desktop/EbAgnos/ml-practice/winequality-red.csv")
+data  = spark.read.option("header", "true").csv("/ml-practice/winequality-red.csv")
 
 data.printSchema()
 

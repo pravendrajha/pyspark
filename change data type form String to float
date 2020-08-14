@@ -1,0 +1,16 @@
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import isnan, when, count, col
+# adding master & enabling hive support
+spark = SparkSession.builder.master("local").enableHiveSupport().appName("sparkTest").getOrCreate()
+
+# reading the data
+
+data  = spark.read.option("header", "true").option("inferSchma","true").csv("C:/Users/pravjha/Desktop/EbAgnos/ml-practice/winequality-red.csv")
+
+data.printSchema()
+
+data.show()
+
+data_new_df = data.select(*(col(c).cast("float").alias(c) for c in data.columns))
+
+data_new_df.printSchema()

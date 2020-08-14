@@ -1,0 +1,17 @@
+from pyspark.sql import SparkSession
+# adding master & enabling hive support
+spark = SparkSession.builder.master("local").enableHiveSupport().appName("sparkTest").getOrCreate()
+
+spark
+
+# reading the data
+
+data  = spark.read.option("header", "true").option("inferSchma","true").csv("/ml-practice/winequality-red.csv")
+
+data.show()
+
+data.printSchema()
+
+# writting  the data
+
+data.write.mode("overwrite").format("parquet").save("/data-paquet")

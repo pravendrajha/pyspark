@@ -1,0 +1,6 @@
+from pyspark.sql import SparkSession
+spark = SparkSession.builder.appName("sparkTest").getOrCreate()
+spark
+# adding master & enabling hive support 
+spark = SparkSession.builder.master("local").enableHiveSupport().appName("sparkTest").getOrCreate()
+spark.sparkContext

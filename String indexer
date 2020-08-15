@@ -1,0 +1,35 @@
+from pyspark.sql import SparkSession
+from pyspark.ml.feature import VectorAssembler, StandardScaler,MinMaxScaler,StringIndexer
+from pyspark.sql.functions import isnan, when, count, col
+import pyspark.sql.functions as F
+
+# adding master & enabling hive support
+spark = SparkSession.builder.master("local").enableHiveSupport().appName("sparkTest").getOrCreate()
+
+
+df = spark.createDataFrame([(1, 'John', 1.79, 28,'M', 'Doctor'),
+                        (2, 'Steve', 1.78, 45,'M', None),
+                        (3, 'Emma', 1.75, None, None, None),
+                        (4, 'Ashley',1.6, 33,'F', 'Analyst'),
+                        (5, 'Olivia', 1.8, 54,'F', 'Teacher'),
+                        (6, 'Hannah', 1.82, None, 'F', None),
+                        (7, 'William',None, 42,'M', 'Engineer'),
+                        (None,None,None,None,None,None),
+                        (8,'Ethan',1.55,38,'M','Doctor'),
+                        (9,'Hannah',1.65,None,'F','Doctor'),
+                       (10,'Xavier',1.64,43,None,'Doctor')]
+                       , ['Id', 'Name', 'Height', 'Age', 'Gender', 'Profession'])
+
+df.show()
+
+for col_name in ['Name', 'Gender', 'Profession']:
+    common = df.dropna().groupBy(col_name).agg(F.count("*")).orderBy('count(1)', ascending=False).first()[col_name]
+    print( common , col_name)
+    df = df.withColumn(col_name, F.when(F.isnull(col_name), common).otherwise(df[col_name]))
+
+
+df.show()
+
+indexer = StringIndexer(inputCol="Gender", outputCol="Gender_new")
+
+indexer.fit(df).transform(df).show()

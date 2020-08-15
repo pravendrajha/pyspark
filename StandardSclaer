@@ -1,0 +1,29 @@
+from pyspark.sql import SparkSession
+from pyspark.ml.feature import VectorAssembler, StandardScaler
+from pyspark.sql.functions import isnan, when, count, col
+import pyspark.sql.functions as F
+
+# adding master & enabling hive support
+spark = SparkSession.builder.master("local").enableHiveSupport().appName("sparkTest").getOrCreate()
+
+# reading the data
+
+data  = spark.read.option("header", "true").option("inferSchema","true").csv("/ml-practice/Social_Network_Ads.csv")
+
+data.printSchema()
+
+data.show()
+
+input_features = data.drop('Purchased').columns
+
+print(input_features)
+
+
+va = VectorAssembler(inputCols=input_features, outputCol="features")
+
+vaDF = va.transform(data)
+ss = StandardScaler(
+    withMean=True, withStd=True, inputCol="features", outputCol="scaled_features"
+)
+
+ss.fit(vaDF).transform(vaDF).show()

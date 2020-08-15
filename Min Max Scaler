@@ -1,0 +1,30 @@
+from pyspark.sql import SparkSession
+from pyspark.ml.feature import VectorAssembler, StandardScaler,MinMaxScaler
+from pyspark.sql.functions import isnan, when, count, col
+import pyspark.sql.functions as F
+
+# adding master & enabling hive support
+spark = SparkSession.builder.master("local").enableHiveSupport().appName("sparkTest").getOrCreate()
+
+# reading the data
+
+data  = spark.read.option("header", "true").option("inferSchema","true").csv("C:/Users/pravjha/Desktop/EbAgnos/ml-practice/Social_Network_Ads.csv")
+
+data.printSchema()
+
+data.show()
+
+input_features = data.select('EstimatedSalary').columns
+
+print(input_features)
+
+
+va = VectorAssembler(inputCols=input_features, outputCol="features")
+
+vaDF = va.transform(data)
+
+scaler = MinMaxScaler(inputCol="features", outputCol="scaled_features")
+
+minmaxSclaerModel = scaler.fit(vaDF)
+
+scaledData = minmaxSclaerModel.transform(vaDF).show(truncate=False)
